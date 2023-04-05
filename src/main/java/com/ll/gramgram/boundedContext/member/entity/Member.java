@@ -26,14 +26,20 @@ public class Member {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
+
     @CreatedDate // 아래 칼럼에는 값이 자동으로 들어간다.(INSERT 할 때)
     private LocalDateTime createDate;
+
     @LastModifiedDate // 아래 칼럼에는 값이 자동으로 들어간다.(UPDATE 할 때 마다)
     private LocalDateTime modifyDate;
+
     private String providerTypeCode; // 일반회원인지, 카카오로 가입한 회원인지, 구글로 가입한 회원인지
+
     @Column(unique = true)
     private String username;
+
     private String password;
+
     @OneToOne // 1:1
     @Setter // memberService::updateInstaMember 함수 때문에
     private InstaMember instaMember;
@@ -57,4 +63,5 @@ public class Member {
     public boolean hasConnectedInstaMember() {
         return instaMember != null;
     }
+
 }
