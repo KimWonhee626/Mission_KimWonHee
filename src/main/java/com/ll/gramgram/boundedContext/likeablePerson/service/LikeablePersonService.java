@@ -62,8 +62,13 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> delete(LikeablePerson likeablePerson){
+        String toInstaMemberUsername = likeablePerson.getToInstaMember().getUsername();
         likeablePersonRepository.delete(likeablePerson);
 
-        return RsData.of("S-1", "삭제되었습니다.", likeablePerson);
+        return RsData.of("S-1", "%s님에 대한 호감을 취소하였습니다.".formatted(toInstaMemberUsername));
+    }
+
+    public Optional<LikeablePerson> findById(Long id) {
+        return likeablePersonRepository.findById(id);
     }
 }
