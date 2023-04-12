@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,16 +23,22 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
-        if ( member.hasConnectedInstaMember() == false ) {
-            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
-        }
 
         if (member.getInstaMember().getUsername().equals(username)) {
             return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
         }
 
+        if (member.hasConnectedInstaMember() == false) {
+            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
+        }
+
         InstaMember fromInstaMember = member.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
+
+        Optional<LikeablePerson> findLikeablePerson = likeablePersonRepository.findByToInstaMemberId(toInstaMember.getId());
+        if(findLikeablePerson.isPresent()){
+            return RsData.of("F-3", "이미 호감상대로 등록되어 있습니다.");
+        }
 
         LikeablePerson likeablePerson = LikeablePerson
                 .builder()
@@ -61,13 +66,13 @@ public class LikeablePersonService {
         Optional<LikeablePerson> likeablePerson = likeablePersonRepository.findById(id);
         if (likeablePerson.isPresent()) {
             return likeablePerson.get();
-        } else{
+        } else {
             throw new DataNotFoundException("likeable not found!");
         }
     }
 
     @Transactional
-    public RsData delete(LikeablePerson likeablePerson){
+    public RsData delete(LikeablePerson likeablePerson) {
         likeablePersonRepository.delete(likeablePerson);
 
         return RsData.of("S-1", "%s님에 대한 호감을 취소하였습니다."
