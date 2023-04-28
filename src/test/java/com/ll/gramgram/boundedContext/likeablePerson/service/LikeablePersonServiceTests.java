@@ -1,5 +1,6 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
+import com.ll.gramgram.base.appConfig.AppConfig;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
@@ -175,5 +176,13 @@ public class LikeablePersonServiceTests {
         LikeablePerson likeablePerson = likeablePersonRepository.findByFromInstaMemberIdAndToInstaMember_username(2L, "insta_user100");
 
         assertThat(likeablePerson.getId()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("설정파일에 있는 likeablePersonFromMax 가져오기")
+    void testAppConfig() throws Exception {
+        long likeablePersonFromMax = AppConfig.getLikeablePersonFromMax();
+
+        assertThat(likeablePersonFromMax).isEqualTo(10);
     }
 }

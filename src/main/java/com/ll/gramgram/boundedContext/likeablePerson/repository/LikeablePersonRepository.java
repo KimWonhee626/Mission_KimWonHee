@@ -15,4 +15,5 @@ public interface LikeablePersonRepository extends JpaRepository<LikeablePerson, 
 
     LikeablePerson findByFromInstaMemberIdAndToInstaMember_username(long fromInstaMemberId, String username);
 
+    Optional<LikeablePerson> findByFromInstaMember_usernameAndToInstaMember_username(String fromInstaMemberUsername, String toInstaMemberUsername);
 }
