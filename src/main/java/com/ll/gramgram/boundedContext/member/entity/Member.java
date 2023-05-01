@@ -64,4 +64,8 @@ public class Member {
         return instaMember != null;
     }
 
+    public String getNickname() {
+        return "%04d".formatted(getId());
+    }
+
 }
