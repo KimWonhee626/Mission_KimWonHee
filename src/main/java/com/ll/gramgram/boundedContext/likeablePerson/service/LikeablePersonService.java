@@ -89,7 +89,7 @@ public class LikeablePersonService {
         }
 
         long likeablePersonFromMax = AppConfig.getLikeablePersonFromMax();
-        
+
         if (fromLikeablePeople.size() >= likeablePersonFromMax) {
             return RsData.of("F-4", "최대 %d명에 대해서만 호감표시가 가능합니다.".formatted(likeablePersonFromMax));
         }
