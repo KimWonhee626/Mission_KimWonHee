@@ -13,7 +13,11 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @ToString(callSuper = true)
 public class InstaMemberSnapshot extends InstaMemberBase {
+
+    private String eventTypeCode;
+
     private String username;
+
     @ToString.Exclude
     @ManyToOne
     private InstaMember instaMember;
