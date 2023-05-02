@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -98,7 +99,7 @@ public class LikeablePersonService {
     }
 
     @Transactional
-    public RsData delete(LikeablePerson likeablePerson) {
+    public RsData cancel(LikeablePerson likeablePerson) {
         likeablePerson.getFromInstaMember().removeFromLikeablePerson(likeablePerson);
         likeablePerson.getFromInstaMember().removeToLikeablePerson(likeablePerson);
 
@@ -108,7 +109,7 @@ public class LikeablePersonService {
                 .formatted(likeablePerson.getToInstaMember().getUsername()));
     }
 
-    public RsData canDelete(Member actor, LikeablePerson likeablePerson) {
+    public RsData canCancel(Member actor, LikeablePerson likeablePerson) {
         if (likeablePerson == null) return RsData.of("F-1", "이미 삭제되었습니다.");
 
         // 수행자(로그인한 멤버)의 인스타계정 번호
@@ -140,12 +141,39 @@ public class LikeablePersonService {
         String oldAttractiveTypeDisplayName = fromLikeablePerson.getAttractiveTypeDisplayName();
 
         fromLikeablePerson.setAttractiveTypeCode(attractiveTypeCode);
-        likeablePersonRepository.save(fromLikeablePerson);
 
         String newAttractiveTypeDisplayName = fromLikeablePerson.getAttractiveTypeDisplayName();
 
         return RsData.of("S-3", "%s님에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, oldAttractiveTypeDisplayName, newAttractiveTypeDisplayName));
 
+    }
+
+    @Transactional
+    public RsData<LikeablePerson> modifyLike(Member actor, Long id, int attractiveTypeCode) {
+        LikeablePerson likeablePerson = findById(id).orElseThrow();
+        RsData canModifyRsData = canModifyLike(actor, likeablePerson);
+
+        if(canModifyRsData.isFail()){
+            return canModifyRsData;
+        }
+
+        likeablePerson.setAttractiveTypeCode(attractiveTypeCode);
+
+        return RsData.of("S-1", "%s님의 호감사유가 변경되었습니다.".formatted(actor.getInstaMember().getUsername()));
+    }
+
+    public RsData canModifyLike(Member actor, LikeablePerson likeablePerson) {
+        if(!actor.hasConnectedInstaMember()){
+            return RsData.of("F-1", "먼저 본인의 인스타그램 아이디를 입력해주세요.");
+        }
+
+        InstaMember fromInstaMember = actor.getInstaMember();
+
+        if(!Objects.equals(likeablePerson.getFromInstaMember().getId(), fromInstaMember.getId())){
+            return RsData.of("F-2", "해당 호감표시를 취소할 권한이 없습니다.");
+        }
+
+        return RsData.of("S-1", "호감표시 취소가 가능합니다.");
     }
 
     public Optional<LikeablePerson> findById(Long id) {
@@ -159,4 +187,5 @@ public class LikeablePersonService {
     public Optional<LikeablePerson> findByFromInstaMember_usernameAndToInstaMember_username(String fromInstaMemberUsername, String toInstaMemberUsername) {
         return likeablePersonRepository.findByFromInstaMember_usernameAndToInstaMember_username(fromInstaMemberUsername, toInstaMemberUsername);
     }
+
 }
