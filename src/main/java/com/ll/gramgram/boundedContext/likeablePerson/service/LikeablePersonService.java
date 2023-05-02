@@ -127,8 +127,38 @@ public class LikeablePersonService {
     }
 
     @Transactional
-    public RsData modifyAttractive(Member actor, String username, int attractiveTypeCode) {
-        // actor가 호감표시한 목록
+    public RsData<LikeablePerson> modifyAttractive(Member actor, Long id, int attractiveTypeCode) {
+        Optional<LikeablePerson> likeablePersonOptional = findById(id);
+
+        if (likeablePersonOptional.isEmpty()) {
+            return RsData.of("F-1", "존재하지 않는 호감표시입니다.");
+        }
+
+        LikeablePerson likeablePerson = likeablePersonOptional.get();
+
+        return modifyAttractive(actor, likeablePerson, attractiveTypeCode);
+    }
+
+    private RsData<LikeablePerson> modifyAttractive(Member actor, LikeablePerson likeablePerson, int attractiveTypeCode) {
+        RsData canModifyRsData = canModifyLike(actor, likeablePerson);
+
+        if (canModifyRsData.isFail()) {
+            return canModifyRsData;
+        }
+
+        String oldAttractiveTypeDisplayName = likeablePerson.getAttractiveTypeDisplayName();
+        String username = likeablePerson.getToInstaMember().getUsername();
+
+        modifyAttractiveTypeCode(likeablePerson, attractiveTypeCode);
+
+        String newAttractiveTypeDisplayName = likeablePerson.getAttractiveTypeDisplayName();
+
+        return RsData.of("S-3", "%s님에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, oldAttractiveTypeDisplayName, newAttractiveTypeDisplayName), likeablePerson);
+    }
+
+
+    private RsData<LikeablePerson> modifyAttractive(Member actor, String username, int attractiveTypeCode) {
+        // 액터가 생성한 `좋아요` 들 가져오기
         List<LikeablePerson> fromLikeablePeople = actor.getInstaMember().getFromLikeablePeople();
 
         LikeablePerson fromLikeablePerson = fromLikeablePeople
@@ -137,32 +167,11 @@ public class LikeablePersonService {
                 .findFirst()
                 .orElse(null);
 
-        if(fromLikeablePerson == null){
-            return RsData.of("F-7", "호감 표시를 하지 않았습니다.");
+        if (fromLikeablePerson == null) {
+            return RsData.of("F-7", "호감표시를 하지 않았습니다.");
         }
 
-        String oldAttractiveTypeDisplayName = fromLikeablePerson.getAttractiveTypeDisplayName();
-
-        modifyAttractiveTypeCode(fromLikeablePerson, attractiveTypeCode);
-
-        String newAttractiveTypeDisplayName = fromLikeablePerson.getAttractiveTypeDisplayName();
-
-        return RsData.of("S-3", "%s님에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, oldAttractiveTypeDisplayName, newAttractiveTypeDisplayName));
-
-    }
-
-    @Transactional
-    public RsData<LikeablePerson> modifyLike(Member actor, Long id, int attractiveTypeCode) {
-        LikeablePerson likeablePerson = findById(id).orElseThrow();
-        RsData canModifyRsData = canModifyLike(actor, likeablePerson);
-
-        if(canModifyRsData.isFail()){
-            return canModifyRsData;
-        }
-
-        modifyAttractiveTypeCode(likeablePerson, attractiveTypeCode);
-
-        return RsData.of("S-1", "%s님의 호감사유가 변경되었습니다.".formatted(actor.getInstaMember().getUsername()));
+        return modifyAttractive(actor, fromLikeablePerson, attractiveTypeCode);
     }
 
     private void modifyAttractiveTypeCode(LikeablePerson likeablePerson, int attractiveTypeCode) {
