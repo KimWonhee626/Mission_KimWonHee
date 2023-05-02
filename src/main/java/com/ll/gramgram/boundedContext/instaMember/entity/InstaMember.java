@@ -124,4 +124,25 @@ public class InstaMember {
         if (gender.equals("M") && attractiveTypeCode == 2) likesCountByGenderManAndAttractiveTypeCode2--;
         if (gender.equals("M") && attractiveTypeCode == 3) likesCountByGenderManAndAttractiveTypeCode3--;
     }
+
+    public boolean updateGender(String gender){
+        if(gender.equals(this.gender)){
+            return false;
+        }
+
+        String oldGender = this.gender;
+
+        getFromLikeablePeople().forEach(
+                likeablePerson -> {
+                    InstaMember toInstaMember = likeablePerson.getToInstaMember();
+
+                    toInstaMember.decreaseLikesCount(oldGender, likeablePerson.getAttractiveTypeCode());
+                    toInstaMember.increaseLikesCount(gender, likeablePerson.getAttractiveTypeCode());
+
+                });
+
+        this.gender = gender;
+
+        return true;
+    }
 }
