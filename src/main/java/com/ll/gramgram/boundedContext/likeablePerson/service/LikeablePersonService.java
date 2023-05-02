@@ -38,6 +38,8 @@ public class LikeablePersonService {
         InstaMember fromInstaMember = actor.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
 
+        toInstaMember.increaseLikesCount(fromInstaMember.getGender(), attractiveTypeCode);
+
         Optional<LikeablePerson> findLikeablePerson = likeablePersonRepository.findByToInstaMemberId(toInstaMember.getId());
         if(findLikeablePerson.isPresent()){
             return RsData.of("F-3", "이미 호감상대로 등록되어 있습니다.");
@@ -100,6 +102,9 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData cancel(LikeablePerson likeablePerson) {
+        InstaMember toInstaMember = likeablePerson.getToInstaMember();
+        toInstaMember.decreaseLikesCount(toInstaMember.getGender(), likeablePerson.getAttractiveTypeCode());
+
         likeablePerson.getFromInstaMember().removeFromLikeablePerson(likeablePerson);
         likeablePerson.getFromInstaMember().removeToLikeablePerson(likeablePerson);
 
@@ -140,7 +145,7 @@ public class LikeablePersonService {
 
         String oldAttractiveTypeDisplayName = fromLikeablePerson.getAttractiveTypeDisplayName();
 
-        fromLikeablePerson.setAttractiveTypeCode(attractiveTypeCode);
+        fromLikeablePerson.updateAttractiveTypeCode(attractiveTypeCode);
 
         String newAttractiveTypeDisplayName = fromLikeablePerson.getAttractiveTypeDisplayName();
 
@@ -157,7 +162,7 @@ public class LikeablePersonService {
             return canModifyRsData;
         }
 
-        likeablePerson.setAttractiveTypeCode(attractiveTypeCode);
+        likeablePerson.updateAttractiveTypeCode(attractiveTypeCode);
 
         return RsData.of("S-1", "%s님의 호감사유가 변경되었습니다.".formatted(actor.getInstaMember().getUsername()));
     }
