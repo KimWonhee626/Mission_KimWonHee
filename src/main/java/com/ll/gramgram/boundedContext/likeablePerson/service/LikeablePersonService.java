@@ -196,7 +196,11 @@ public class LikeablePersonService {
             return RsData.of("F-2", "해당 호감표시를 취소할 권한이 없습니다.");
         }
 
-        return RsData.of("S-1", "호감표시 취소가 가능합니다.");
+        if(!likeablePerson.isModifyUnlocked()){
+            return RsData.of("F-3", "아직 호감사유를 변경할 수 없습니다.");
+        }
+
+        return RsData.of("S-1", "호감표시 변경이 가능합니다.");
     }
 
     public Optional<LikeablePerson> findById(Long id) {
