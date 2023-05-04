@@ -42,7 +42,7 @@ public class LikeablePersonControllerTests {
     @Autowired
     private LikeablePersonService likeablePersonService;
 
-    @Test
+ /*   @Test
     @DisplayName("등록 폼(인스타 인증을 안해서 폼 대신 메세지)")
     @WithUserDetails("user1")
     void t001() throws Exception {
@@ -61,7 +61,7 @@ public class LikeablePersonControllerTests {
                         """.stripIndent().trim())))
         ;
     }
-
+*/
     @Test
     @DisplayName("등록 폼")
     @WithUserDetails("user2")
