@@ -43,25 +43,8 @@ public class LikeablePerson extends BaseEntity {
     }
 
     // 초 단위에서 올림 해주세요.
-    public String getModifyUnlockDateRemainStrHuman() {
-        String result = "";
-
-        if(isModifyUnlocked()){
-            return null;
-        }
-        Duration diff = Duration.between(LocalDateTime.now(), modifyUnlockDate);
-
-        long diffHours = diff.toHours();
-        long diffMinutes = diff.toMinutes() - 60 * diffHours;
-
-        if(diffHours == 0){
-            result = diffMinutes + "분";
-        }
-        else{
-            result = diffHours + "시간" + diffMinutes + " 분";
-        }
-
-        return result;
+    public String getModifyUnlockDateRemain() {
+        return Ut.time.diffTime(LocalDateTime.now(), modifyUnlockDate);
     }
 
     public String getAttractiveTypeDisplayName() {
